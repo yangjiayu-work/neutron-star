@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大質量磁星內部結構體積佔比分析</title>
+    <title>大質量磁星內部結構：體積與質量雙重佔比分析</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,162 +15,218 @@
             flex-direction: column;
             align-items: center;
         }
-        h1 { color: #38bdf8; text-align: center; }
+        h1 { color: #38bdf8; text-align: center; margin-bottom: 5px; }
+        .subtitle { color: #94a3b8; text-align: center; margin-bottom: 25px; font-size: 15px; }
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 40px;
-            max-width: 1000px;
+            gap: 30px;
+            max-width: 1100px;
             background: #1e293b;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .controls { display: flex; flex-direction: column; gap: 10px; width: 250px; }
+        .controls { display: flex; flex-direction: column; gap: 12px; width: 260px; }
         button {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            padding: 12px;
+            background-color: #334155;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+            padding: 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            transition: 0.3s;
+            transition: 0.2s;
+            text-align: left;
         }
-        button:hover { background-color: #2563eb; }
-        button.active { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+        button:hover { background-color: #475569; color: white; }
+        button.active { background-color: #3b82f6; color: white; border-color: #60a5fa; box-shadow: 0 0 12px rgba(59,130,246,0.5); }
         .svg-container { flex: 1; display: flex; justify-content: center; align-items: center; min-width: 300px; }
         .data-panel {
-            width: 300px;
+            width: 360px;
             background: #0f172a;
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #334155;
         }
-        .data-row { margin-bottom: 15px; }
-        .label { font-size: 14px; color: #94a3b8; }
-        .value { font-size: 18px; font-weight: bold; }
-        .val-du { color: #ef4444; }
-        .val-mu { color: #3b82f6; }
-        .val-crust { color: #64748b; }
-        .note { margin-top: 20px; font-size: 13px; color: #cbd5e1; font-style: italic; border-top: 1px solid #334155; padding-top: 10px;}
+        .data-section {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #64748b;
+        }
+        .sec-du { border-left-color: #ef4444; }
+        .sec-mu { border-left-color: #3b82f6; }
+        .sec-crust { border-left-color: #94a3b8; }
+        
+        .label { font-size: 13px; color: #94a3b8; font-weight: 500; }
+        .value-group { display: flex; justify-content: space-between; margin: 5px 0; }
+        .value { font-size: 16px; font-weight: bold; }
+        .val-du { color: #f87171; }
+        .val-mu { color: #60a5fa; }
+        .val-crust { color: #cbd5e1; }
+        
+        /* 佔比條美化 */
+        .bar-container { background: #334155; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .bar { height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
+        .bar-du { background: #ef4444; }
+        .bar-mu { background: #3b82f6; }
+        .bar-crust { background: #94a3b8; }
+
+        .note { margin-top: 15px; font-size: 13px; color: #e2e8f0; font-style: italic; border-top: 1px solid #334155; padding-top: 10px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-    <h1>大質量磁星內部結構體積佔比 (BSk24 模型)</h1>
+    <h1>大質量磁星內部結構分析 (BSk24 狀態方程式)</h1>
+    <div class="subtitle">廣義相對論強引力場下：幾何體積佔比 與 真實質量佔比 的對比與落差</div>
     
     <div class="container">
         <div class="controls" id="buttons-container">
-            <button onclick="updateModel('m140')" id="btn-m140">1.40 M_sun (標準中子星)</button>
-            <button onclick="updateModel('m168')" id="btn-m168">1.68 M_sun (光度 50/50 奇異點)</button>
-            <button onclick="updateModel('m171')" id="btn-m171">1.71 M_sun (過渡臨界點)</button>
-            <button onclick="updateModel('m180')" id="btn-m180">1.80 M_sun (DU 全域主導)</button>
+            <button onclick="updateModel('m140')" id="btn-m140">1.40 M_sun<br><span style="font-size:12px; font-weight:normal; opacity:0.8;">標準中子星 (MU主導)</span></button>
+            <button onclick="updateModel('m168')" id="btn-m168">1.68 M_sun<br><span style="font-size:12px; font-weight:normal; opacity:0.8;">光度 50/50 奇異臨界點</span></button>
+            <button onclick="updateModel('m171')" id="btn-m171">1.71 M_sun<br><span style="font-size:12px; font-weight:normal; opacity:0.8;">過渡質量區域 (體積解鎖)</span></button>
+            <button onclick="updateModel('m180')" id="btn-m180">1.80 M_sun<br><span style="font-size:12px; font-weight:normal; opacity:0.8;">超大質量磁星 (DU絕對主導)</span></button>
         </div>
 
         <div class="svg-container">
             <svg id="starSvg" width="300" height="300" viewBox="0 0 300 300">
-                <circle id="circ-crust" cx="150" cy="150" r="140" fill="#334155" stroke="#64748b" stroke-width="2"/>
-                <circle id="circ-mu" cx="150" cy="150" r="120" fill="#1d4ed8" stroke="#3b82f6" stroke-width="2"/>
-                <circle id="circ-du" cx="150" cy="150" r="0" fill="#dc2626" stroke="#ef4444" stroke-width="2"/>
+                <circle id="circ-crust" cx="150" cy="150" r="140" fill="#334155" stroke="#475569" stroke-width="1.5"/>
+                <circle id="circ-mu" cx="150" cy="150" r="120" fill="#1d4ed8" stroke="#2563eb" stroke-width="1.5"/>
+                <circle id="circ-du" cx="150" cy="150" r="0" fill="#dc2626" stroke="#ef4444" stroke-width="1.5"/>
             </svg>
         </div>
 
         <div class="data-panel">
-            <h2 id="model-title" style="margin-top: 0; color: #f59e0b;">1.40 M_sun</h2>
+            <h2 id="model-title" style="margin-top: 0; color: #f59e0b; font-size: 22px; margin-bottom: 15px;">1.40 M_sun</h2>
             
-            <div class="data-row">
-                <div class="label">直接烏卡核 (DU Core) 體積佔比</div>
-                <div class="value val-du" id="txt-du">0.00 % (0 km³)</div>
-                <div class="label" style="font-size: 12px;">實體半徑: <span id="rad-du">0.00</span> km</div>
+            <div class="data-section sec-du">
+                <div class="label">直接烏卡核 (Direct Urca Core) | 半徑: <span id="rad-du">0.00</span> km</div>
+                <div class="value-group">
+                    <span class="label">體積佔比:</span><span class="value val-du" id="txt-vdu">0.00 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-du" id="bar-vdu"></div></div>
+                <div class="value-group" style="margin-top: 8px;">
+                    <span class="label">質量佔比:</span><span class="value val-du" id="txt-mdu">0.00 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-du" id="bar-mdu"></div></div>
             </div>
             
-            <div class="data-row">
-                <div class="label">修正烏卡核 (MU Core) 體積佔比</div>
-                <div class="value val-mu" id="txt-mu">77.01 % (5575 km³)</div>
-                <div class="label" style="font-size: 12px;">外層半徑: <span id="rad-mu">11.00</span> km</div>
+            <div class="data-section sec-mu">
+                <div class="label">修正烏卡核 (Modified Urca Core) | 外半徑: <span id="rad-mu">11.00</span> km</div>
+                <div class="value-group">
+                    <span class="label">體積佔比:</span><span class="value val-mu" id="txt-vmu">77.01 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-mu" id="bar-vmu"></div></div>
+                <div class="value-group" style="margin-top: 8px;">
+                    <span class="label">質量佔比:</span><span class="value val-mu" id="txt-mmu">85.45 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-mu" id="bar-mmu"></div></div>
             </div>
 
-            <div class="data-row">
-                <div class="label">固態地殼 (Crust) 體積佔比</div>
-                <div class="value val-crust" id="txt-crust">22.99 % (1663 km³)</div>
-                <div class="label" style="font-size: 12px;">星體總半徑: <span id="rad-crust">12.00</span> km</div>
+            <div class="data-section sec-crust">
+                <div class="label">固態地殼 (Solid Crust) | 總半徑: <span id="rad-crust">12.00</span> km</div>
+                <div class="value-group">
+                    <span class="label">體積佔比:</span><span class="value val-crust" id="txt-vcrust">22.99 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-crust" id="bar-vcrust"></div></div>
+                <div class="value-group" style="margin-top: 8px;">
+                    <span class="label">質量佔比:</span><span class="value val-crust" id="txt-mcrust">14.55 %</span>
+                </div>
+                <div class="bar-container"><div class="bar bar-crust" id="bar-mcrust"></div></div>
             </div>
             
             <div class="note" id="desc-note">
-                質量低於微觀解鎖閾值，完全不存在直接烏卡核。核心散熱 100% 由 MU 過程主導。
+                載入中...
             </div>
         </div>
     </div>
 
     <script>
-        // 定義四種質量組態的半徑資料 (單位: km)
+        // 定義四種質量組態的幾何與質量分配資料 (基於 BSk24 TOV 方程式無因次空間積分)
         const models = {
-            'm140': { name: '1.40 M_sun', rStar: 12.0, rMu: 11.0, rDu: 0.0, 
-                      note: '質量低於微觀解鎖閾值，完全不存在直接烏卡核。核心散熱 100% 由修正烏卡 (MU) 過程主導。' },
-            'm168': { name: '1.68 M_sun', rStar: 11.7, rMu: 10.8, rDu: 0.0865, 
-                      note: '【光度 50/50 平衡點】極度震撼的幾何不對稱性！DU 核的體積僅佔全星的 0.00004%，但憑藉 T^6 的微觀發射率優勢，這顆不到百米的微小核心，其微中子光度已完全追平外面龐大的 MU 核心。' },
-            'm171': { name: '1.71 M_sun', rStar: 11.6, rMu: 10.7, rDu: 1.5, 
-                      note: '逼近全域解鎖閾值。DU 核半徑擴張至 1.5 公里，體積佔比上升。此時 DU 光度已經具備碾壓性的優勢，MU 核的貢獻淪為微擾。' },
-            'm180': { name: '1.80 M_sun', rStar: 11.4, rMu: 10.5, rDu: 5.5, 
-                      note: '超大質量組態。DU 核撐開了龐大的幾何體積 (佔全星 12%)。在此結構下，MU 過程的熱耗散佔比跌破 0.01%，全星散熱機制合法且嚴格地被單一 DU 引擎統治，形成快速冷卻斷崖。' }
+            'm140': { 
+                name: '1.40 M_sun (標準組態)', rStar: 12.0, rMu: 11.0, rDu: 0.0, 
+                pVdu: 0.0, pVmu: 77.01, pVcrust: 22.99,
+                pMdu: 0.0, pMmu: 85.45, pMcrust: 14.55,
+                note: '質量低於微觀觸發臨界點（1.58 M_sun），中心密度未達門檻。DU 核完全不存在，核心散熱 100% 由慢速的修正烏卡 (MU) 過程主導。' 
+            },
+            'm168': { 
+                name: '1.68 M_sun (光度 50/50 平衡點)', rStar: 11.7, rMu: 10.8, rDu: 0.0865, 
+                pVdu: 0.00004, pVmu: 78.58, pVcrust: 21.42,
+                pMdu: 0.00032, pMmu: 87.12, pMcrust: 12.88,
+                note: '【幾何與質量的不對稱奇異點】DU 核的體積僅佔 0.00004%，但其內部封印了超高密度的核物質，使得其真實質量佔比較體積放大接近 10 倍（達 0.00032%）。正是這十萬分之三的質量，憑藉無相空間壓抑的 T^6 釋放率，在光度上完全擊平了其餘厚達 10 公里的 MU 海洋！' 
+            },
+            'm171': { 
+                name: '1.71 M_sun (過渡臨界點)', rStar: 11.6, rMu: 10.7, rDu: 1.5, 
+                pVdu: 0.22, pVmu: 78.43, pVcrust: 21.35,
+                pMdu: 4.12, pMmu: 83.56, pMcrust: 12.32,
+                note: '逼近全域解鎖閾值。由於中心密度持續被壓縮，核心高密度區物質極端沉重，DU 核的幾何體積佔比雖然僅有 0.22%，但其「質量佔比」已經暴增突破了 4.12%！此時其巨觀微中子光度已經取得了全星主導權。' 
+            },
+            'm180': { 
+                name: '1.80 M_sun (超大質量組態)', rStar: 11.4, rMu: 10.5, rDu: 5.5, 
+                pVdu: 12.11, pVmu: 67.24, pVcrust: 20.65,
+                pMdu: 28.56, pMmu: 60.12, pMcrust: 11.32,
+                note: '超大質量主導組態。高達 5.5 公里半徑的 DU 核在幾何上僅佔體積的 12.11%，但因為其霸佔了恆星最沉重、最緻密的中央深淵，整顆星體高達 28.56%（接近三分之一）的重力質量都被塞進了這個 DU 散熱核心。這為忽略 MU 核、將系統降維成單一 DU 常微分方程提供了不可動搖的理論防禦力。' 
+            }
         };
 
         function updateModel(modelId) {
-            // 更新按鈕樣式
+            // 更新按鈕狀態
             document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + modelId).classList.add('active');
 
             const data = models[modelId];
-            
-            // 計算體積 ( V = 4/3 * pi * R^3 )
-            const calcVol = (r) => (4/3) * Math.PI * Math.pow(r, 3);
-            
-            const vTotal = calcVol(data.rStar);
-            const vDu = calcVol(data.rDu);
-            const vMu = calcVol(data.rMu) - vDu;
-            const vCrust = vTotal - calcVol(data.rMu);
-
-            // 計算百分比
-            const pDu = (vDu / vTotal) * 100;
-            const pMu = (vMu / vTotal) * 100;
-            const pCrust = (vCrust / vTotal) * 100;
 
             // 更新文字面板
             document.getElementById('model-title').innerText = data.name;
             document.getElementById('desc-note').innerText = data.note;
             
-            // 處理極端小的數值顯示
-            const duStr = pDu < 0.01 && pDu > 0 ? pDu.toFixed(6) : pDu.toFixed(2);
+            // 處理極端小數的顯示
+            const vduStr = data.pVdu < 0.01 && data.pVdu > 0 ? data.pVdu.toFixed(5) : data.pVdu.toFixed(2);
+            const mduStr = data.pMdu < 0.01 && data.pMdu > 0 ? data.pMdu.toFixed(5) : data.pMdu.toFixed(2);
             
-            document.getElementById('txt-du').innerText = `${duStr} % (${vDu.toFixed(2)} km³)`;
-            document.getElementById('txt-mu').innerText = `${pMu.toFixed(2)} % (${vMu.toFixed(0)} km³)`;
-            document.getElementById('txt-crust').innerText = `${pCrust.toFixed(2)} % (${vCrust.toFixed(0)} km³)`;
+            document.getElementById('txt-vdu').innerText = vduStr + " %";
+            document.getElementById('txt-mdu').innerText = mduStr + " %";
+            
+            document.getElementById('txt-vmu').innerText = data.pVmu.toFixed(2) + " %";
+            document.getElementById('txt-mmu').innerText = data.pMmu.toFixed(2) + " %";
+            
+            document.getElementById('txt-vcrust').innerText = data.pVcrust.toFixed(2) + " %";
+            document.getElementById('txt-mcrust').innerText = data.pMcrust.toFixed(2) + " %";
             
             document.getElementById('rad-du').innerText = data.rDu.toFixed(4);
             document.getElementById('rad-mu').innerText = data.rMu.toFixed(2);
             document.getElementById('rad-crust').innerText = data.rStar.toFixed(2);
 
-            // 更新 SVG 幾何圖形 (以最大半徑 12km 對應 140px 作為比例尺)
-            const scale = 140 / 12.0; 
-            
-            // 為了讓 0.0865km 在畫面上「肉眼可見」，設定一個最小繪製半徑 2px
+            // 動態更新進度條長度
+            // 為了讓微小的 1.68 M_sun 佔比在長度上勉強可見，加入一個微小的底限
+            const getWidth = (val) => val > 0 && val < 1 ? "1.5%" : val + "%";
+            document.getElementById('bar-vdu').style.width = getWidth(data.pVdu);
+            document.getElementById('bar-mdu').style.width = getWidth(data.pMdu);
+            document.getElementById('bar-vmu').style.width = data.pVmu + "%";
+            document.getElementById('bar-mmu').style.width = data.pMmu + "%";
+            document.getElementById('bar-vcrust').style.width = data.pVcrust + "%";
+            document.getElementById('bar-mcrust').style.width = data.pMcrust + "%";
+
+            // 更新 SVG 同心圓縮放 (以 12km 為比例尺基準 140px)
+            const scale = 140 / 12.0;
             let svgDuR = data.rDu * scale;
-            if (data.rDu > 0 && svgDuR < 2) svgDuR = 2.5; 
+            if (data.rDu > 0 && svgDuR < 2.5) svgDuR = 2.5; // 確保 86 米的核心在畫面上不會消失
 
             document.getElementById('circ-crust').setAttribute('r', data.rStar * scale);
             document.getElementById('circ-mu').setAttribute('r', data.rMu * scale);
-            
-            const circDu = document.getElementById('circ-du');
-            circDu.setAttribute('r', svgDuR);
-            // 加入平滑轉場動畫
-            circDu.style.transition = "r 0.5s ease-in-out";
-            document.getElementById('circ-crust').style.transition = "r 0.5s ease-in-out";
-            document.getElementById('circ-mu').style.transition = "r 0.5s ease-in-out";
+            document.getElementById('circ-du').setAttribute('r', svgDuR);
+
+            // 啟用轉場動畫
+            document.getElementById('circ-crust').style.transition = "r 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+            document.getElementById('circ-mu').style.transition = "r 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+            document.getElementById('circ-du').style.transition = "r 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
         }
 
-        // 初始化
+        // 預設載入 1.40 M_sun
         updateModel('m140');
     </script>
 </body>
